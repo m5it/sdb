@@ -3,7 +3,7 @@
 # sdb.*          https://github.com/m5it
 # sdb.* Script to sync local with remote database!
 # sdb.* Useful for backups or sync because you need it!
-#**************** you are welcome **********************
+ **************** you are welcome **********************
 #             ***    my friend    ***
 #             ***********************
 #--
