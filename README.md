@@ -7,8 +7,25 @@
 #             ***    my friend    ***
 #             ***********************
 #--
-# Used files:
-# - sdb.config  ( configurations for remote and local db )
-# - sdb.sh      ( main script that do the job )
-# - sdbloop.sh  ( Define db names )
-#--
+### ð **Project Overview**
+A bash script tool for syncing MariaDB databases. Syncs tables by auto-increment IDs, ensuring only new data is transferred.
+---
+### ð **Key Features**
+- **Auto-increment sync**: Syncs data from `source` to `destination` DBs based on auto-increment IDs.
+- **Configurable**: Define sync pairs and credentials in `sdb.config`.
+- **Batch processing**: Uses `sdbloop.sh` to loop through defined DB pairs.
+- **Debug mode**: Enable `DEBUG="true"` for detailed logs.
+---
+### ð **Files**
+1. **`start.sh`**: Entry point to run the sync process.
+2. **`sdb.config`**: Stores DB credentials and sync pairs (e.g., `DBS=('source1:dest1' 'source2:dest2')`).
+3. **`sdbloop.sh`**: Defines DB pairs and triggers `sdb.sh` for each pair.
+4. **`sdb.sh`**: Core logic for syncing tables via auto-increment ID checks.
+---
+### ð **Usage**
+1. **Configure**: Edit `sdb.config` with your DB credentials and sync pairs.
+2. **Run**:
+``` 
+./start.sh
+```  
+This executes `sdbloop.sh`, which runs `sdb.sh` for each defined DB pair.

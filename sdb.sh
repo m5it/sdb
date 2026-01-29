@@ -66,20 +66,23 @@ for T in $TABLES; do
 	  echo "Warning: No auto-increment column found in table '$T'."
 	  continue
 	fi
+	
 	# ---------------------------
-	# Step 3: Get last ID from source
+	# Step 3: Get last ID from source and destination
 	SOURCE_LAST_ID=$(mariadb -u "$SOURCE_USER" -p"$SOURCE_PASS" "$SOURCE_DB" -h "$SOURCE_HOST" -P "$SOURCE_PORT" -Nse "SELECT MAX($AC) FROM $T" --skip-ssl)
 	DESTINATION_LAST_ID=$(mariadb -u "$DESTINATION_USER" -p"$DESTINATION_PASS" "$DESTINATION_DB" -h "$DESTINATION_HOST" -P "$DESTINATION_PORT" -Nse "SELECT MAX($AC) FROM $T" --skip-ssl)
-	#
+	
+	#-- CONTINUE on NULL
 	if [[ "$SOURCE_LAST_ID" == "NULL" ]]; then
 		if [[ $DEBUG == true ]]; then echo "Continuing.. Null."; fi
 		continue
 	fi
+	#-- CONTINUE on SAME ID
 	if [[ $SOURCE_LAST_ID -eq $DESTINATION_LAST_ID ]]; then
 		if [[ $DEBUG == true ]]; then echo "Continuing.. Same ids."; fi
 		continue
 	fi
-	#
+	#-- JUST DEBUG TABLE THAT GET SYNCED
 	if [[ $DEBUG == true ]]; then
 		echo "-----------------------------"
 		echo "Starting sync on table $T"
@@ -88,6 +91,7 @@ for T in $TABLES; do
 		echo "Destination Last ID: "$DESTINATION_LAST_ID
 		echo "-----------------------------"
 	fi
+	
 	# ---------------------------
 	# Step 4: Sync data to destination using destination credentials
 	#--
