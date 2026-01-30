@@ -1,11 +1,14 @@
 #!/bin/bash
 #--
 # sdb.* v0.2 by B.K aka t3ch -> w4d4f4k at gmail dot com
-# sdb.*          https://github.com/m5it/sdb
+# sdb.*          https://github.com/m5it
 # sdb.* Script to sync local with remote database!
+# sdb.* Useful for backups or sync because you need it!
 #**************** you are welcome **********************
 #             ***    my friend    ***
 #             ***********************
+#             · synca  effortlessly ·
+#             ·······················
 #--
 # Used files:
 # - sdb.config  ( configurations for remote and local db )
@@ -58,11 +61,12 @@ TABLES=$(mariadb -h "$SOURCE_HOST" -u "$SOURCE_USER" -p"$SOURCE_PASS" -P$SOURCE_
 for T in $TABLES; do
 	#
 	index=$(indexOf "table2" "${EXCLUDES[@]}")
+	D=$(date)
 	if [[ $index -gt -1 ]]; then
-		if [[ $DEBUG==true ]]; then echo $COUNT_N".) EXCLUDING: "$T; fi
+		if [[ $DEBUG==true ]]; then echo $COUNT_N".) "$D" EXCLUDING: "$T; fi
 		continue
 	else
-		if [[ $DEBUG==true ]]; then echo $COUNT_N".) USING: "$T; fi
+		if [[ $DEBUG==true ]]; then echo $COUNT_N".) "$D" USING: "$T; fi
 	fi
 	#
 	COUNT_N=$((COUNT_N+1))
