@@ -1,7 +1,7 @@
 #!/bin/bash
 #--
-# sdb.* v0.1 by B.K aka t3ch -> w4d4f4k at gmail dot com
-# sdb.*          https://github.com/m5it
+# sdb.* v0.2 by B.K aka t3ch -> w4d4f4k at gmail dot com
+# sdb.*          https://github.com/m5it/sdb
 # sdb.* Script to sync local with remote database!
 #**************** you are welcome **********************
 #             ***    my friend    ***
@@ -22,18 +22,25 @@
 # ---------------------------
 # Script arguments
 # ---------------------------
-USE_SOURCE_DB=$1
-USE_DESTINATION_DB=$2
+USE_SOURCE_DB=$1      # source DB
+USE_DESTINATION_DB=$2 # destination DB
+USE_EXCLUDE_TABLES=$3 # Exclude tables can be one ex.: prefix_tablename or multiple ex.: prefix_t1,prefix_t2
+
 #
 COUNT_SYNCED=0
 COUNT_N=0
+EXCLUDES=() # Exclude tables
 #
 source sdb.config
+source functions.sh
 #
 if [[ "$SOURCE_DB" == "" ]]; then
 	echo "exit"
 	exit
 fi
+# split tables
+IFS=',' read -ra EXCLUDES <<< "$USE_EXCLUDE_TABLES"
+
 #--
 # 
 if [[ "USE_SOURCE_DB" != "" ]]; then
@@ -49,7 +56,15 @@ fi
 # Get list of tables from source DB
 TABLES=$(mariadb -h "$SOURCE_HOST" -u "$SOURCE_USER" -p"$SOURCE_PASS" -P$SOURCE_PORT -N -s -e "use $SOURCE_DB;show tables;" --skip-ssl)
 for T in $TABLES; do
-	if [[ $DEBUG==true ]]; then echo $COUNT_N".) Table: "$T; fi
+	#
+	index=$(indexOf "table2" "${EXCLUDES[@]}")
+	if [[ $index -gt -1 ]]; then
+		if [[ $DEBUG==true ]]; then echo $COUNT_N".) EXCLUDING: "$T; fi
+		continue
+	else
+		if [[ $DEBUG==true ]]; then echo $COUNT_N".) USING: "$T; fi
+	fi
+	#
 	COUNT_N=$((COUNT_N+1))
 	# ---------------------------
 	# Step 1: Get auto-increment column name from source
@@ -66,23 +81,20 @@ for T in $TABLES; do
 	  echo "Warning: No auto-increment column found in table '$T'."
 	  continue
 	fi
-	
 	# ---------------------------
-	# Step 3: Get last ID from source and destination
+	# Step 3: Get last ID from source
 	SOURCE_LAST_ID=$(mariadb -u "$SOURCE_USER" -p"$SOURCE_PASS" "$SOURCE_DB" -h "$SOURCE_HOST" -P "$SOURCE_PORT" -Nse "SELECT MAX($AC) FROM $T" --skip-ssl)
 	DESTINATION_LAST_ID=$(mariadb -u "$DESTINATION_USER" -p"$DESTINATION_PASS" "$DESTINATION_DB" -h "$DESTINATION_HOST" -P "$DESTINATION_PORT" -Nse "SELECT MAX($AC) FROM $T" --skip-ssl)
-	
-	#-- CONTINUE on NULL
+	#
 	if [[ "$SOURCE_LAST_ID" == "NULL" ]]; then
 		if [[ $DEBUG == true ]]; then echo "Continuing.. Null."; fi
 		continue
 	fi
-	#-- CONTINUE on SAME ID
 	if [[ $SOURCE_LAST_ID -eq $DESTINATION_LAST_ID ]]; then
 		if [[ $DEBUG == true ]]; then echo "Continuing.. Same ids."; fi
 		continue
 	fi
-	#-- JUST DEBUG TABLE THAT GET SYNCED
+	#
 	if [[ $DEBUG == true ]]; then
 		echo "-----------------------------"
 		echo "Starting sync on table $T"
@@ -91,7 +103,6 @@ for T in $TABLES; do
 		echo "Destination Last ID: "$DESTINATION_LAST_ID
 		echo "-----------------------------"
 	fi
-	
 	# ---------------------------
 	# Step 4: Sync data to destination using destination credentials
 	#--

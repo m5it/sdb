@@ -1,7 +1,7 @@
 #!/bin/bash
 #--
-# sdb.* v0.1 by B.K aka t3ch -> w4d4f4k at gmail dot com
-# sdb.*          https://github.com/m5it
+# sdb.* v0.2 by B.K aka t3ch -> w4d4f4k at gmail dot com
+# sdb.*          https://github.com/m5it/sdb
 # sdb.* Script to sync local with remote database!
 #**************** you are welcome **********************
 #             ***    my friend    ***
@@ -14,12 +14,32 @@
 #--
 source sdb.config
 #
-for DB in ${DBS[@]}; do
-	DDB=${DB#*:}
-	SDB=${DB%%:*}
+for DB in "${DBS[@]}"; do
+	echo "sdbloop.sh => Parsing DB: "$DB
+    IFS=';:' read -ra parts <<< "$DB"
+    CMD="" # Supported commands: -E (exclude tables)
+	EXC=""
+	SDB=""
+	DDB=""
+    if [[ ${parts[0]} == -* ]]; then
+        # First part is a flag (e.g., "-E")
+        #SDB=${TMP#*:}
+		#DDB=${TMP%%:*}
+        CMD=${parts[0]} # for future versions
+	    EXC=${parts[1]}
+	    SDB="${parts[2]}"
+	    DDB="${parts[3]}"
+	    #
+	    ./sdb.sh "$SDB" "$DDB" "$EXC"
+    else
+        # Default case: split on first colon
+        SDB=${parts[0]}
+        DDB=${parts[1]}
+        ./sdb.sh "$SDB" "$DDB"
+    fi
+    echo "CMD: $CMD" # -E ...
+    echo "EXC: $EXC" # -E:somedata;
 	echo "SDB: $SDB"
 	echo "DDB: $DDB"
-	#
-	./sdb.sh "$SDB" "$DDB"
 done
 echo "Done!"
