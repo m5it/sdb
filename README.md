@@ -37,4 +37,4 @@ This executes `sdbloop.sh`, which runs `sdb.sh` for each defined DB pair.
 30.01:2026 => v0.2 · Updated support of options. Added option to exclude specific tables from syncing.
 **Notes**  
 - Excluded tables are skipped during sync.  
-- Ensure `DEBUG="true"` is set for troubleshooting. 
+- Ensure `DEBUG="true"` is set for troubleshooting.
