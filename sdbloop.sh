@@ -19,30 +19,34 @@ source sdb.config
 #
 for DB in "${DBS[@]}"; do
 	echo "sdbloop.sh => Parsing DB: "$DB
-    IFS=';:' read -ra parts <<< "$DB"
-    CMD="" # Supported commands: -E (exclude tables)
+	IFS=';:' read -ra parts <<< "$DB"
+	CMD="" # Supported commands: -E (exclude tables)
 	EXC=""
 	SDB=""
 	DDB=""
-    if [[ ${parts[0]} == -* ]]; then
-        # First part is a flag (e.g., "-E")
-        #SDB=${TMP#*:}
+	# First part is a flag (e.g., "-E") Exclude table.
+	if [[ ${parts[0]} == -* ]]; then
+		#SDB=${TMP#*:}
 		#DDB=${TMP%%:*}
-        CMD=${parts[0]} # for future versions
-	    EXC=${parts[1]}
-	    SDB="${parts[2]}"
-	    DDB="${parts[3]}"
-	    #
-	    ./sdb.sh "$SDB" "$DDB" "$EXC"
-    else
-        # Default case: split on first colon
-        SDB=${parts[0]}
-        DDB=${parts[1]}
-        ./sdb.sh "$SDB" "$DDB"
-    fi
-    echo "CMD: $CMD" # -E ...
-    echo "EXC: $EXC" # -E:somedata;
-	echo "SDB: $SDB"
-	echo "DDB: $DDB"
+		CMD=${parts[0]} # for future versions
+		EXC=${parts[1]}
+		SDB="${parts[2]}"
+		DDB="${parts[3]}"
+		#
+		./sdb.sh "$SDB" "$DDB" "$EXC"
+	# Default case: split on first colon
+	else
+		SDB=${parts[0]}
+		DDB=${parts[1]}
+		./sdb.sh "$SDB" "$DDB"
+	fi
+	# Debug only
+	if [[ $DEBUG == true ]]; then
+		echo "DEBUG configured options: "
+		echo "CMD: $CMD" # -E ...
+		echo "EXC: $EXC" # -E:somedata;
+		echo "SDB: $SDB"
+		echo "DDB: $DDB"
+	fi
 done
 echo "Done!"

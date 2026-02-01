@@ -60,7 +60,7 @@ fi
 TABLES=$(mariadb -h "$SOURCE_HOST" -u "$SOURCE_USER" -p"$SOURCE_PASS" -P$SOURCE_PORT -N -s -e "use $SOURCE_DB;show tables;" --skip-ssl)
 for T in $TABLES; do
 	#
-	index=$(indexOf "table2" "${EXCLUDES[@]}")
+	index=$(indexOf "$T" "${EXCLUDES[@]}")
 	D=$(date)
 	if [[ $index -gt -1 ]]; then
 		if [[ $DEBUG==true ]]; then echo $COUNT_N".) "$D" EXCLUDING: "$T; fi
@@ -116,5 +116,3 @@ for T in $TABLES; do
 done
 
 echo "Ended... It Is Synced. Your day is saved *** "$COUNT_SYNCED
-
-
